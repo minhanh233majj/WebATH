@@ -5,8 +5,8 @@ torchvision>=0.15.2,<0.16.0
 tensorflow>=2.15.0,<2.16.0
 keras==2.15.0
 transformers==4.40.1
-datasets==2.19.0
-huggingface-hub==0.13.4
+datasets>=2.19.0,<3.0.0
+huggingface-hub>=0.13.4,<0.14.0
 safetensors==0.5.3
 xgboost==3.0.0
 scikit-learn==1.3.0
@@ -119,7 +119,7 @@ cycler==0.12.1
 dill==0.3.7
 docopt==0.6.2
 et-xmlfile==1.1.0
-filelock==3.13.1
+filelock>=3.13.1,<4.0.0
 filetype==1.2.0
 fire==0.7.0
 flatbuffers==25.2.10
