@@ -85,9 +85,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # ĐÚNG
         'NAME': 'shopbanghangdb',
-        'USER': 'postgres',
-        'PASSWORD': '123456',  # Thêm mật khẩu nếu cần
-        'HOST': 'localhost',
+        'USER': 'shopadmin',
+        'PASSWORD': 'lhN98G5MTm0TUwpQUIzA2I6FbflGAmhU',  # Thêm mật khẩu nếu cần
+        'HOST': 'dpg-d0ja6m6mcj7s73fpj4fg-a.singapore-postgres.render.com',
         'PORT': '5432',
     }
 }
