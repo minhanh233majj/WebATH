@@ -1,13 +1,14 @@
 # Core ML libraries
-torch>=2.7.0,<2.8.0
-torchaudio>=2.7.0,<2.8.0
-torchvision>=0.15.2,<0.16.0
-tensorflow>=2.15.0,<2.16.0
+torch==2.0.1
+torchaudio==2.0.2
+torchvision==0.15.2
+tensorflow==2.15.0
 keras==2.15.0
 transformers==4.40.1
 datasets>=2.19.0,<3.0.0
 huggingface-hub>=0.23.0,<0.24.0
 safetensors==0.5.3
+xgboost==3.0.0
 scikit-learn==1.3.0
 scipy==1.10.1
 joblib==1.3.2
@@ -183,7 +184,6 @@ tqdm==4.67.1
 typing_extensions==4.12.2
 vine==5.1.0
 wcwidth==0.2.13
-xgboost==3.0.0
 xlrd==2.0.1
 xlutils==2.0.0
 xlwt==1.3.0
