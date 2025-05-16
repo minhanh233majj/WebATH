@@ -17,18 +17,12 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-46es)*@d)c5!=%a5c21c$gvdpt69cj_7tuhe)l=ut+nog%8k6y')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-46es)*@d)c5!=%a5c21c$gvdpt69cj_7tuhe)l=ut+nog%8k6y'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['websitebanghangdientu.onrender.com', 'localhost', '127.0.0.1']
-
+# Sửa phần ALLOWED_HOSTS lấy từ biến môi trường, tách bằng dấu phẩy
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='websitebanghangdientu.onrender.com,localhost,127.0.0.1').split(',')
 
 
 # Application definition
