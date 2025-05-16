@@ -166,9 +166,9 @@ terminaltables==3.1.10
 thop==0.1.1.post2209072238
 threadpoolctl==3.5.0
 tokenizers==0.19.1
-torch==2.1.0+cpu
-torchaudio==2.1.0+cpu
-torchvision==0.16.0+cpu
+torch==2.7.0
+torchaudio==2.7.0
+torchvision==0.15.2
 tqdm==4.67.1
 transformers==4.40.1
 typing_extensions==4.12.2
