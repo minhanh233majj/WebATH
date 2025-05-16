@@ -1,0 +1,173 @@
+{% extends 'admin/base_site.html' %}
+{% block extrastyle %}
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .table-cell {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .scrollable-section::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scrollable-section::-webkit-scrollbar-thumb {
+    background-color: #a0aec0;
+    border-radius: 4px;
+  }
+  .scrollable-section::-webkit-scrollbar-track {
+    background: #edf2f7;
+  }
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background-color: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover {
+    transform: scale(1.05);
+  }
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e40af;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container mx-auto p-4">
+  <h1 class="text-3xl font-bold text-center mb-6">Dự Báo Nhu Cầu và Quản Lý Tồn Kho</h1>
+
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Thông Báo Tồn Kho</h2>
+    <div id="alerts" class="max-h-36 overflow-y-auto scrollable-section bg-gray-50 p-3 rounded-lg shadow border border-gray-200">
+      {% for alert in alerts %}
+      <div class="p-2 mb-2 last:mb-0 rounded-md {% if 'Tồn kho thấp' in alert.alert %}bg-red-100 border-l-4 border-red-500{% else %}bg-yellow-100 border-l-4 border-yellow-500{% endif %}">
+        <p class="text-sm font-medium truncate">
+          {% if 'Tồn kho thấp' in alert.alert %}
+            <span class="text-red-700">Cảnh Báo Tồn Kho Thấp</span>
+          {% else %}
+            <span class="text-yellow-700">Cảnh Báo Nhu Cầu Cao</span>
+          {% endif %}
+          : {{ alert.alert }} (ID: {{ alert.product_id }}, Tên: {{ alert.product_name }})
+        </p>
+        <p class="text-xs text-gray-600">Nhập kho: {{ alert.restock_quantity }} đơn vị</p>
+      </div>
+      {% empty %}
+      <div class="p-2 rounded-md bg-green-100 border-l-4 border-green-500">
+        <p class="text-sm font-medium text-green-700">Không có thông báo mới</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="stats-container">
+    <div class="stat-card">
+      <h4 class="text-sm font-medium text-gray-700">Tổng Sản Phẩm</h4>
+      <p class="stat-value">{{ total_products }}</p>
+    </div>
+    <div class="stat-card">
+      <h4 class="text-sm font-medium text-gray-700">Tồn Kho Trung Bình</h4>
+      <p class="stat-value">{{ avg_current_stock }}</p>
+    </div>
+    <div class="stat-card">
+      <h4 class="text-sm font-medium text-gray-700">Nhu Cầu Dự Đoán Trung Bình</h4>
+      <p class="stat-value">{{ avg_predicted_demand }}</p>
+    </div>
+  </div>
+
+  <div class="bg-white p-4 rounded-lg shadow">
+    <h3 class="text-lg font-semibold mb-3">Dự Báo Tồn Kho</h3>
+    <div class="overflow-x-auto">
+      <div class="max-h-48 overflow-y-auto scrollable-section">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="bg-gray-100 sticky top-0">
+              <th class="p-2 table-cell">Tên Sản Phẩm</th>
+              <th class="p-2 table-cell">Sản Phẩm ID</th>
+              <th class="p-2 table-cell">Nhu Cầu Dự Đoán</th>
+              <th class="p-2 table-cell">Tồn Kho Hiện Tại</th>
+              <th class="p-2 table-cell">Khuyến Nghị Nhập Kho</th>
+            </tr>
+          </thead>
+          <tbody id="forecasts">
+            {% for forecast in forecasts %}
+            <tr class="border-b">
+              <td class="p-2 table-cell">{{ forecast.product_name|default:"Unknown Product" }}</td>
+              <td class="p-2 table-cell">{{ forecast.product_id }}</td>
+              <td class="p-2 table-cell">{{ forecast.predicted_demand }}</td>
+              <td class="p-2 table-cell">{{ forecast.current_stock }}</td>
+              <td class="p-2 table-cell">{{ forecast.restock_quantity }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="p-2 text-gray-500">Chưa có dữ liệu dự báo</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex justify-center">
+    <label for="timeFilter" class="text-sm font-semibold mr-3 self-center">Chọn thời gian:</label>
+    <select id="timeFilter" onchange="updateForecasts()" class="p-2 border rounded text-sm">
+      <option value="">-- Chọn thời gian --</option>
+      <option value="1" {% if days == 1 %}selected{% endif %}>1 ngày</option>
+      <option value="2" {% if days == 2 %}selected{% endif %}>2 ngày</option>
+      <option value="7" {% if days == 7 %}selected{% endif %}>7 ngày</option>
+      <option value="30" {% if days == 30 %}selected{% endif %}>1 tháng</option>
+    </select>
+  </div>
+</div>
+
+<script>
+  function updateForecasts() {
+    const days = document.getElementById('timeFilter').value;
+    fetch(`/admin/inventory-forecast-data/?days=${days}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu');
+        return response.json();
+      })
+      .then(data => {
+        const forecastsTable = document.getElementById('forecasts');
+        forecastsTable.innerHTML = data.forecasts.map(forecast => `
+          <tr class="border-b">
+            <td class="p-2 table-cell">${forecast.product_name || 'Unknown Product'}</td>
+            <td class="p-2 table-cell">${forecast.product_id}</td>
+            <td class="p-2 table-cell">${forecast.predicted_demand}</td>
+            <td class="p-2 table-cell">${forecast.current_stock}</td>
+            <td class="p-2 table-cell">${forecast.restock_quantity}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="5" class="p-2 text-gray-500">Chưa có dữ liệu dự báo</td></tr>';
+
+        const alertsSection = document.getElementById('alerts');
+        alertsSection.innerHTML = data.alerts.map(alert => `
+          <div class="p-2 mb-2 last:mb-0 rounded-md ${alert.alert.includes('Tồn kho thấp') ? 'bg-red-100 border-l-4 border-red-500' : 'bg-yellow-100 border-l-4 border-yellow-500'}">
+            <p class="text-sm font-medium truncate">
+              ${alert.alert.includes('Tồn kho thấp') ? '<span class="text-red-700">Cảnh Báo Tồn Kho Thấp</span>' : '<span class="text-yellow-700">Cảnh Báo Nhu Cầu Cao</span>'}
+              : ${alert.alert} (ID: ${alert.product_id}, Tên: ${alert.product_name})
+            </p>
+            <p class="text-xs text-gray-600">Nhập kho: ${alert.restock_quantity} đơn vị</p>
+          </div>
+        `).join('') || `
+          <div class="p-2 rounded-md bg-green-100 border-l-4 border-green-500">
+            <p class="text-sm font-medium text-green-700">Không có thông báo mới</p>
+          </div>`;
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Không thể tải dữ liệu dự báo.');
+      });
+  }
+</script>
+{% endblock %}

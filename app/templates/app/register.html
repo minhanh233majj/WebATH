@@ -1,0 +1,279 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Đăng Ký</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Font Awesome cho icon -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+        <!-- Google Fonts (Poppins) -->
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        {% block register %}
+        <section class="register-section">
+            <div class="container">
+                <div class="form-wrapper">
+                    <form method="POST" action="" class="register-form">
+                        {% csrf_token %}
+
+                        <style>
+                            /* Reset và thiết lập font mặc định */
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                                font-family: 'Poppins', sans-serif;
+                            }
+
+                            /* Nền toàn trang */
+                            .register-section {
+                                min-height: 100vh;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+                                padding: 20px;
+                                overflow: hidden;
+                            }
+
+                            /* Container chính */
+                            .container {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                width: 100%;
+                                max-width: 1200px;
+                                margin: 0 auto;
+                            }
+
+                            /* Wrapper của form */
+                            .form-wrapper {
+                                width: 100%;
+                                max-width: 600px; /* Tăng chiều rộng để chứa 2 cột */
+                                perspective: 1000px;
+                            }
+
+                            /* Form đăng ký */
+                            .register-form {
+                                background: rgba(255, 255, 255, 0.95);
+                                backdrop-filter: blur(12px);
+                                border-radius: 25px;
+                                padding: 40px;
+                                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                                animation: fadeIn 1s ease forwards;
+                                transform: translateY(20px);
+                                opacity: 0;
+                            }
+
+                            /* Hiệu ứng fade-in */
+                            @keyframes fadeIn {
+                                to {
+                                    transform: translateY(0);
+                                    opacity: 1;
+                                }
+                            }
+
+                            /* Tiêu đề */
+                            .register-form h2 {
+                                text-align: center;
+                                font-size: 30px;
+                                font-weight: 600;
+                                color: #1e3a8a;
+                                margin-bottom: 40px;
+                                position: relative;
+                                background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                            }
+
+                            .register-form h2::after {
+                                content: '';
+                                width: 60px;
+                                height: 4px;
+                                background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+                                position: absolute;
+                                bottom: -15px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                border-radius: 5px;
+                            }
+
+                            /* Thông báo */
+                            .alert {
+                                font-size: 14px;
+                                padding: 12px 15px;
+                                border-radius: 10px;
+                                margin-bottom: 25px;
+                                text-align: center;
+                            }
+
+                            .alert-success {
+                                background-color: rgba(40, 167, 69, 0.15);
+                                color: #28a745;
+                                border: 1px solid #28a745;
+                            }
+
+                            .alert-error {
+                                background-color: rgba(220, 53, 69, 0.15);
+                                color: #dc3545;
+                                border: 1px solid #dc3545;
+                            }
+
+                            /* Container chứa các trường nhập liệu */
+                            .form-grid {
+                                display: grid;
+                                grid-template-columns: repeat(2, 1fr); /* Chia thành 2 cột */
+                                gap: 20px; /* Khoảng cách giữa các ô */
+                                margin-bottom: 25px;
+                            }
+
+                            /* Ô mã xác minh (chiếm cả 2 cột) */
+                            .full-width {
+                                grid-column: span 2; /* Chiếm toàn bộ chiều rộng */
+                            }
+
+                            /* Nhóm input */
+                            .input-group {
+                                position: relative;
+                            }
+
+                            /* Định dạng input */
+                            .input-group input {
+                                width: 100%;
+                                padding: 12px 15px;
+                                border: 2px solid #e2e8f0;
+                                border-radius: 12px;
+                                font-size: 15px;
+                                color: #1e3a8a;
+                                background: #f8fafc;
+                                transition: all 0.3s ease;
+                                height: 48px; /* Đảm bảo chiều cao cố định */
+                                box-sizing: border-box;
+                            }
+
+                            .input-group input:focus {
+                                outline: none;
+                                border-color: #60a5fa;
+                                background: #ffffff;
+                                box-shadow: 0 0 12px rgba(96, 165, 250, 0.3);
+                            }
+
+                            /* Nhãn */
+                            .input-group label {
+                                display: block;
+                                font-size: 14px;
+                                font-weight: 500;
+                                color: #1e3a8a;
+                                margin-bottom: 8px;
+                            }
+
+                            /* Nút đăng ký */
+                            .register-btn {
+                                width: 100%;
+                                padding: 15px;
+                                background: linear-gradient(to right, #60a5fa, #a1c4fd);
+                                border: none;
+                                border-radius: 12px;
+                                font-size: 16px;
+                                font-weight: 500;
+                                color: white;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                position: relative;
+                                overflow: hidden;
+                                z-index: 1;
+                            }
+
+                            .register-btn:hover {
+                                transform: scale(1.03);
+                                background: linear-gradient(to right, #a1c4fd, #60a5fa);
+                                box-shadow: 0 6px 15px rgba(96, 165, 250, 0.4);
+                            }
+
+                            /* Link đăng nhập */
+                            .login-link {
+                                text-align: center;
+                                margin-top: 25px;
+                                font-size: 14px;
+                                color: #1e3a8a;
+                            }
+
+                            .login-link a {
+                                color: #60a5fa;
+                                font-weight: 500;
+                                text-decoration: none;
+                                transition: color 0.3s ease;
+                            }
+
+                            .login-link a:hover {
+                                color: #1e3a8a;
+                                text-decoration: underline;
+                            }
+
+
+                        </style>
+
+                        <h2>Đăng Ký Tài Khoản</h2>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="id_username">User Name</label>
+                                <input type="text" name="username" id="id_username" placeholder="Tên người dùng" value="{{ form.username.value|default_if_none:'' }}" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="id_email">Your Email</label>
+                                <input type="email" name="email" id="id_email" placeholder="Email của bạn" value="{{ form.email.value|default_if_none:'' }}" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="id_first_name">First Name</label>
+                                <input type="text" name="first_name" id="id_first_name" placeholder="Tên của bạn" value="{{ form.first_name.value|default_if_none:'' }}">
+                            </div>
+
+                            <div class="input-group">
+                                <label for="id_last_name">Last Name</label>
+                                <input type="text" name="last_name" id="id_last_name" placeholder="Họ của bạn" value="{{ form.last_name.value|default_if_none:'' }}">
+                            </div>
+
+                            <div class="input-group">
+                                <label for="id_password1">Password</label>
+                                <input type="password" name="password1" id="id_password1" placeholder="Mật khẩu" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="id_password2">Repeat Password</label>
+                                <input type="password" name="password2" id="id_password2" placeholder="Nhập lại mật khẩu" required>
+                            </div>
+
+                            {% if show_verification %}
+                                <div class="input-group full-width">
+                                    <label for="id_verification_code">Verification Code</label>
+                                    <input type="text" name="verification_code" id="id_verification_code" placeholder="Nhập mã xác minh" required>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="register-btn">
+                            {% if show_verification %}Xác nhận mã{% else %}Register{% endif %}
+                        </button>
+
+                        <p class="login-link">Bạn đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập ngay</a></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+        {% endblock register %}
+    </body>
+</html>

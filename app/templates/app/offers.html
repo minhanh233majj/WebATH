@@ -1,0 +1,77 @@
+{% extends 'app/base.html' %}
+{% block main-content %}
+<div class="container my-5">
+    <h2 class="text-center mb-5">Ưu đãi</h2>
+    <div class="row">
+        {% for voucher in available_vouchers %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Mã: {{ voucher.code }}</h5>
+                    <p class="card-text">Giảm: {{ voucher.discount_percentage }}%</p>
+                    <p class="card-text">Hạn dùng: {{ voucher.expiry_date }}</p>
+                    <button class="btn btn-primary save-voucher" data-voucher-id="{{ voucher.id }}">Lưu</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Không có ưu đãi nào hiện tại.</p>
+        {% endfor %}
+    </div>
+    <h3 class="mt-5">Voucher đã lưu</h3>
+    <div class="row">
+        {% for user_voucher in saved_vouchers %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Mã: {{ user_voucher.voucher.code }}</h5>
+                    <p class="card-text">Giảm: {{ user_voucher.voucher.discount_percentage }}%</p>
+                    <p class="card-text">Hạn dùng: {{ user_voucher.voucher.expiry_date }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Bạn chưa lưu voucher nào.</p>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    document.querySelectorAll('.save-voucher').forEach(button => {
+        button.addEventListener('click', function() {
+            const voucherId = this.getAttribute('data-voucher-id');
+            fetch('/save_voucher/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `voucher_id=${voucherId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

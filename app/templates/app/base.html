@@ -1,0 +1,638 @@
+{% load static %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Web Bán Hàng Online</title>
+    <meta name="description" content="Cửa hàng công nghệ hàng đầu">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="{% static 'app/css/style.css' %}" rel="stylesheet"/>
+    <link href="{% static 'app/css/owl.carousel.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'app/css/all.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'app/css/main.css' %}" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Thêm thư viện qrcode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+      :root {
+        --primary-color: #3182ce;
+        --primary-dark: #2c5282;
+        --accent-color: #F6AD55;
+        --dark-bg: #1a202c;
+        --light-bg: #f8fafc;
+        --text-light: #e2e8f0;
+        --text-dark: #2d3748;
+        --border-color: #cbd5e0;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--light-bg);
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .main-content {
+        flex: 1 0 auto;
+        padding-bottom: 100px;
+      }
+
+      .navbar {
+        background-color: var(--dark-bg);
+        padding: 15px 0;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar-brand img {
+        transition: transform 0.3s ease;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+      }
+
+      .navbar-brand img:hover {
+        transform: scale(1.1);
+      }
+
+      .nav-link {
+        color: var(--text-light) !important;
+        font-weight: 500;
+        position: relative;
+        padding: 8px 15px;
+        margin: 0 5px;
+        transition: color 0.3s ease;
+        text-transform: uppercase;
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background-color: var(--primary-color);
+        transition: width 0.3s ease, left 0.3s ease;
+      }
+
+      .nav-link:hover::after,
+      .nav-link.active::after {
+        width: 80%;
+        left: 10%;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color) !important;
+      }
+
+      .dropdown-menu {
+        background-color: var(--light-bg);
+        border: none;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        padding: 10px 0;
+      }
+
+      .dropdown-item {
+        padding: 8px 20px;
+        color: var(--text-dark);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .dropdown-item:hover {
+        background-color: rgba(49, 130, 206, 0.1);
+        color: var(--primary-color);
+      }
+
+      .form-control {
+        border-radius: 25px;
+        border: 1px solid var(--border-color);
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        width: 300px;
+        background-color: #fff;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+      }
+
+      .btn-outline-success {
+        border-radius: 25px;
+        padding: 12px 40px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background-color: transparent;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        margin-left: 10px;
+        box-shadow: var(--shadow);
+        min-width: 120px;
+      }
+
+      .btn-outline-success:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .navbar-nav .nav-item {
+        position: relative;
+      }
+
+      .navbar-nav .nav-link strong {
+        color: var(--accent-color);
+        font-weight: 600;
+      }
+
+      .navbar-nav .text-danger {
+        color: #f56565 !important;
+        transition: color 0.3s ease;
+      }
+
+      .navbar-nav .text-danger:hover {
+        color: #e53e3e !important;
+      }
+
+      #cart-icon {
+        transition: transform 0.3s ease;
+      }
+
+      .form-inline:hover #cart-icon {
+        transform: scale(1.1);
+      }
+
+      .form-inline span {
+        background-color: var(--accent-color);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        color: var(--text-dark);
+      }
+
+      .search-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 200px;
+      }
+
+      @media (max-width: 991px) {
+        .search-container {
+          margin-top: 15px;
+          margin-bottom: 15px;
+          padding-left: 0;
+        }
+        .form-control {
+          width: 200px;
+          padding: 10px 15px;
+          font-size: 1rem;
+        }
+        .btn-outline-success {
+          padding: 10px 25px;
+          font-size: 1rem;
+          margin-left: 10px;
+          min-width: 100px;
+        }
+      }
+
+      .footer-section {
+        background-color: #000000 !important;
+        padding: 40px 0 20px;
+        color: var(--text-light) !important;
+        flex-shrink: 0;
+        width: 100%;
+      }
+
+      .footer-section h5 {
+        color: white !important;
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+      }
+
+      .footer-section h5::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background-color: var(--primary-color);
+      }
+
+      .footer-section ul {
+        padding-left: 0;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 10px;
+        transition: transform 0.3s ease, color 0.3s ease;
+        color: var(--text-light) !important;
+        list-style: none;
+      }
+
+      .footer-section ul li:hover {
+        color: var(--primary-color) !important;
+        transform: translateX(5px);
+      }
+
+      .footer-section a {
+        color: var(--text-light) !important;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .footer-section a:hover {
+        color: var(--primary-color) !important;
+        text-decoration: none;
+      }
+
+      .footer-section .fab {
+        margin-right: 5px;
+      }
+
+      .footer-section .text-center {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-light) !important;
+      }
+
+      .btn-outline-secondary {
+        border-radius: 20px;
+        padding: 8px 25px;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .btn-outline-secondary:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .navbar-nav {
+          text-align: center;
+          padding: 10px 0;
+        }
+
+        .form-inline {
+          margin-top: 10px;
+          justify-content: center;
+        }
+
+        .footer-section h5 {
+          margin-top: 20px;
+        }
+
+        .footer-section .col-md-3:first-child h5 {
+          margin-top: 0;
+        }
+
+        .main-content {
+          padding-bottom: 80px;
+        }
+      }
+
+      /* CSS cho QR Code */
+      .qr-icon {
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--primary-color);
+        margin-left: 10px;
+        transition: transform 0.3s ease;
+      }
+
+      .qr-icon:hover {
+        transform: scale(1.2);
+      }
+
+      .qr-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .qr-modal-content {
+        background-color: var(--light-bg);
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        position: relative;
+        box-shadow: var(--shadow-lg);
+        max-width: 300px;
+        width: 90%;
+      }
+
+      .qr-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-dark);
+      }
+
+      .qr-modal-content h3 {
+        color: var(--text-dark);
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+      }
+
+      .qr-modal-content p {
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        margin-top: 10px;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'app/js/all.min.js' %}"></script>
+    <script src="{% static 'app/js/myscript.js' %}"></script>
+    <script type="text/javascript">
+      var user = '{{request.user}}';
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      const csrftoken = getCookie('csrftoken');
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname.toLowerCase();
+        const menuItems = document.querySelectorAll('.nav-link');
+        menuItems.forEach(item => {
+          const itemUrl = item.getAttribute('href').toLowerCase();
+          const cleanCurrentPath = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+          const cleanItemUrl = itemUrl.endsWith('/') ? itemUrl.slice(0, -1) : itemUrl;
+
+          if (cleanCurrentPath === cleanItemUrl) {
+            item.classList.add('active');
+          } else if (itemUrl.includes('category') && cleanCurrentPath.includes('category')) {
+            item.classList.add('active');
+          } else {
+            switch (cleanCurrentPath) {
+              case '/about':
+              case '/lien-he':
+                if (itemUrl === '/about' || itemUrl === '/lien-he') {
+                  item.classList.add('active');
+                }
+                break;
+              default:
+                break;
+            }
+          }
+        });
+      });
+
+      // JavaScript cho QR Code
+      let qrCodeInstance = null;
+
+      function generateQR() {
+        const userId = '{{ request.user.id }}'; // Lấy ID người dùng từ Django
+        if (!userId) {
+          alert('Vui lòng đăng nhập để tạo mã QR.');
+          return;
+        }
+        const timestamp = Date.now();
+        const qrData = `${window.location.origin}/user-info/?userId=${userId}&timestamp=${timestamp}`;
+        const qrModal = document.getElementById('qrModal');
+        const qrCanvas = document.getElementById('qrCanvas');
+
+        // Ẩn mã QR cũ nếu có
+        if (qrCodeInstance) {
+          qrCodeInstance.clear();
+          qrCanvas.innerHTML = '';
+        }
+
+        // Hiển thị modal
+        qrModal.style.display = 'flex';
+
+        // Tạo mã QR mới
+        qrCodeInstance = new QRCode(qrCanvas, {
+          text: qrData,
+          width: 200,
+          height: 200,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+
+      function closeQRModal() {
+        const qrModal = document.getElementById('qrModal');
+        qrModal.style.display = 'none';
+        if (qrCodeInstance) {
+          qrCodeInstance.clear();
+          document.getElementById('qrCanvas').innerHTML = '';
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">
+          <img src="{% static 'app/images/logo.png' %}" alt="Logo" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'home' %}">TRANG CHỦ</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                SẢN PHẨM
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for i in categoryies %}
+                  <li><a class="dropdown-item" href="{% url 'category' %}?category={{ i.slug }}">{{ i.name }}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">GIỚI THIỆU</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'lien_he' %}">LIÊN HỆ</a>
+            </li>
+
+
+          </ul>
+
+          <div class="search-container">
+            <form class="d-flex" role="search" method="POST" action="{% url 'search' %}">
+              {% csrf_token %}
+              <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm" aria-label="Search" name="searched">
+              <button class="btn btn-outline-success" type="submit">Tìm</button>
+            </form>
+          </div>
+          <ul class="navbar-nav ms-auto d-flex align-items-center">
+            {% if user.is_authenticated %}
+              <li class="nav-item d-flex align-items-center">
+                <span class="nav-link">Xin chào, <strong>{{ request.user }}</strong></span>
+                <!-- Thêm icon QR -->
+                <span class="qr-icon" onclick="generateQR()" title="Xem thông tin qua mã QR">📲</span>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-danger" href="{% url 'logout' %}">ĐĂNG XUẤT</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Đăng nhập</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">Đăng ký</a>
+              </li>
+            {% endif %}
+          </ul>
+          <div class="form-inline my-2 my-lg-0 d-flex align-items-center" style="gap: 10px;">
+            <a href="{% url 'cart' %}">
+              <img id="cart-icon" src="{% static 'images/query/cart.png' %}" alt="Cart" style="width: 30px; height: auto;">
+            </a>
+            <span style="font-weight: bold; color: var(--text-light);">{{cartItems}}</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Modal hiển thị mã QR -->
+    <div id="qrModal" class="qr-modal">
+      <div class="qr-modal-content">
+        <span class="qr-close" onclick="closeQRModal()">×</span>
+        <h3>Mã QR Thông Tin Người Dùng</h3>
+        <div id="qrCanvas"></div>
+        <p>Quét mã QR để xem thông tin người dùng</p>
+      </div>
+    </div>
+
+    <div class="main-content">
+      {% block banner_sider %}{% endblock banner_sider %}
+      {% block main-content %}
+        {% if user.is_authenticated and request.path == "/cart/" or request.path == "/checkout/" %}
+        <div class="container mt-3 text-center">
+          <a href="{% url 'my_orders' %}" class="btn btn-outline-secondary">Xem đơn hàng của bạn</a>
+        </div>
+        {% endif %}
+      {% endblock main-content %}
+      {% block cart_content %}{% endblock cart_content %}
+      {% block content_checkout %}{% endblock content_checkout %}
+      {% block register %}{% endblock register %}
+    </div>
+    {% if request.path != "/cart/" and request.path != "/checkout/" %}
+    <footer class="footer-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3">
+            <h5>Hỗ trợ khách hàng</h5>
+            <ul class="list-unstyled">
+              <a class="nav-link" href="{% url 'voucher_list' %}">Ưu đãi</a>
+              <li>Trung tâm bảo hành</li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h5>Chính sách mua hàng và bảo hành</h5>
+            <ul class="list-unstyled">
+              <li>Quy định chung</li>
+              <li>Chính sách bảo mật thông tin</li>
+              <li>Chính sách vận chuyển và lắp đặt</li>
+              <li>Chính sách bảo hành</li>
+              <li>Chính sách đổi trả hoàn tiền</li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h5>Thông tin công ty</h5>
+            <ul class="list-unstyled">
+               <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">GIỚI THIỆU</a>
+               </li>
+              <li>Thông tin liên hệ</li>
+              <li>Hỏi đáp</li>
+              <li>Tin công nghệ</li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h5>Liên hệ</h5>
+            <ul class="list-unstyled">
+              <li>Gọi mua hàng: 09999999</li>
+              <li>Gọi chăm sóc: 09999999</li>
+              <li>
+                <a href="https://www.facebook.com/profile.php?id=100014587627394" target="_blank">
+                  <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+              </li>
+              <li>
+                <a href="https://www.tiktok.com/@nma.17_02" target="_blank">
+                  <i class="fab fa-tiktok"></i> TikTok
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <p>© ATH Code</p>
+        </div>
+      </div>
+    </footer>
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'app/js/cart.js' %}"></script>
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+  </body>
+</html>

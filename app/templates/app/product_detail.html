@@ -1,0 +1,516 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block main-content %}
+<style>
+  /* NEW: Custom CSS for Product Detail Page */
+  .product-detail-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    background-color: #f8f9fa; /* Light background for the whole section */
+  }
+
+  .product-main-card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden; /* Ensure children stay within rounded corners */
+    margin-bottom: 2.5rem;
+  }
+
+  .product-image-section {
+    padding: 2rem;
+    text-align: center; /* Center image and controls */
+    background-color: #fff; /* Ensure clean background */
+  }
+
+  .product-image-main {
+    max-width: 100%;
+    height: 400px; /* Adjust height as needed */
+    object-fit: contain; /* Show whole image without distortion */
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 1px solid #eee;
+  }
+
+  .product-image-main:hover {
+    transform: scale(1.03);
+  }
+
+  .product-info-section {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically if needed */
+  }
+
+  .product-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .product-price {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #dc3545; /* Highlight price */
+    margin-bottom: 1rem;
+  }
+
+  .product-rating-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .star-rating .fa-star {
+    color: #ffc107; /* Gold color for stars */
+  }
+
+   .product-description {
+      font-size: 1rem;
+      color: #495057;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      max-height: 150px; /* Limit initial height */
+      overflow-y: auto; /* Add scroll if content exceeds height */
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 5px;
+  }
+
+  .product-actions .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+  }
+  .product-actions .btn-add-cart {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+  }
+   .product-actions .btn-add-cart:hover {
+      background: linear-gradient(90deg, #0056b3, #007bff);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  }
+
+  /* Review Section Styling */
+  .review-section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #343a40;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+      padding-bottom: 10px;
+  }
+  .review-section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #007bff, #00c6ff);
+      border-radius: 2px;
+  }
+
+   /* Review Summary Box */
+  .review-summary-box {
+      background-color: #e9f5ff;
+      border: 1px solid #bde0ff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      text-align: center;
+  }
+   .review-summary-box h4 {
+      margin-bottom: 1rem;
+      color: #0056b3;
+      font-weight: 600;
+  }
+   .review-summary-box p {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+  }
+   .review-summary-box .badge {
+      font-size: 0.9rem;
+      padding: 0.4em 0.8em;
+  }
+
+
+  /* Review Form */
+  .review-form-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+  }
+  .review-form-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: #343a40;
+  }
+
+  .review-form-card .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #495057;
+  }
+
+  .review-form-card .form-control,
+  .review-form-card .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+  .review-form-card .form-control:focus,
+  .review-form-card .form-select:focus {
+      border-color: #86b7fe;
+      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  }
+  .review-form-card textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+  }
+  .review-form-card .btn-submit-review {
+    background: linear-gradient(90deg, #28a745, #218838);
+    border: none;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+   .review-form-card .btn-submit-review:hover {
+      background: linear-gradient(90deg, #218838, #28a745);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+   }
+
+  /* Individual Review Item */
+  .review-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .review-item {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+  }
+  .review-item:hover {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+   .review-user {
+      font-weight: 600;
+      color: #0056b3;
+      font-size: 1rem;
+   }
+  .review-date {
+      font-size: 0.85rem;
+      color: #6c757d;
+  }
+
+  .review-rating .fa-star {
+    color: #ffc107; /* Gold color for stars */
+    margin-right: 2px;
+  }
+
+  .review-sentiment .badge {
+      font-size: 0.8rem;
+      margin-left: 10px;
+      vertical-align: middle;
+      padding: 0.3em 0.6em;
+  }
+
+
+  .review-comment {
+    font-size: 0.95rem;
+    color: #495057;
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    white-space: pre-wrap; /* Preserve line breaks in comments */
+  }
+
+  /* Alert Styling */
+  .alert {
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  .alert-success { background-color: #d1e7dd; color: #0a3622; border-color: #a3cfbb; }
+  .alert-warning { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; }
+  .alert-danger { background-color: #f8d7da; color: #58151c; border-color: #f1aeb5; }
+  .alert-info { background-color: #cff4fc; color: #055160; border-color: #9eeaf9; }
+
+   /* Modal Styling */
+  .image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; /* Ensure it's above other elements */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .image-modal.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .image-modal img {
+    max-width: 90%;
+    max-height: 85%;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .close-modal {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    background: transparent;
+    color: #fff;
+    border: none;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    text-shadow: 0 1px 0 #000;
+    opacity: 0.8;
+  }
+
+  .close-modal:hover {
+    opacity: 1;
+    color: #ddd;
+  }
+
+
+</style>
+
+<div class="container product-detail-container">
+  <div class="card product-main-card">
+    <div class="row g-0">
+      <!-- Product Image Section -->
+      <div class="col-md-5 product-image-section">
+        {% if product.ImageURL %}
+          <img src="{{ product.ImageURL }}" alt="{{ product.name }}" class="product-image-main" onclick="openModal('{{ product.ImageURL }}')" />
+        {% else %}
+          <img src="{% static 'app/images/placeholder.png' %}" alt="Placeholder Image" class="product-image-main" />
+        {% endif %}
+      </div>
+
+      <!-- Product Info Section -->
+      <div class="col-md-7 product-info-section">
+        <h1 class="product-title">{{ product.name }}</h1>
+        <h2 class="product-price">{{ product.price|floatformat:0 }} VNĐ</h2>
+
+        <!-- NEW: Average Rating Display -->
+        <div class="product-rating-summary">
+            {% if average_rating > 0 %}
+                <span class="star-rating">
+                    {% for i in "12345" %}
+                        <i class="fa{% if average_rating >= i|add:0 %}s{% else %}r{% endif %} fa-star"></i>
+                    {% endfor %}
+                </span>
+                <span>{{ average_rating }}/5</span>
+                <span class="mx-2">|</span>
+            {% endif %}
+            <span>{{ review_summary.TOTAL }} đánh giá</span>
+        </div>
+
+        <p class="product-description">{{ product.detail|default:"Không có mô tả chi tiết cho sản phẩm này."|linebreaksbr }}</p>
+
+        <div class="product-actions">
+          <button data-product="{{ product.id }}" data-action="add" class="btn btn-add-cart update-cart">
+            <i class="fas fa-cart-plus me-2"></i> Thêm vào giỏ hàng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div id="imageModal" class="image-modal">
+    <button class="close-modal" onclick="closeModal()">×</button>
+    <img id="modalImage" src="" alt="Phóng to ảnh sản phẩm"/>
+  </div>
+
+  <!-- Review Section -->
+  <div class="review-section mt-5">
+    <h2 class="review-section-title">Đánh giá & Bình luận</h2>
+
+    <!-- NEW: Review Summary Box -->
+     {% if review_summary.TOTAL > 0 %}
+    <div class="review-summary-box">
+        <h4>Tổng kết đánh giá</h4>
+        <p>Điểm trung bình: <strong>{{ average_rating }}/5</strong></p>
+        <p>
+           <span class="badge bg-success">{{ review_summary.POSITIVE }} Tích cực</span> |
+           <span class="badge bg-danger">{{ review_summary.NEGATIVE }} Tiêu cực</span> |
+           <span class="badge bg-secondary">{{ review_summary.NEUTRAL }} Trung tính</span>
+        </p>
+         <p>Tổng số: <strong>{{ review_summary.TOTAL }}</strong> đánh giá</p>
+    </div>
+     {% endif %}
+
+
+    <!-- Review Form -->
+    {% if user.is_authenticated %}
+      <div class="review-form-card">
+          <h3>Viết đánh giá của bạn</h3>
+        {% if messages %}
+          <div class="mb-3">
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="POST" action="">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="{{ form.rating.id_for_label }}" class="form-label">{{ form.rating.label }}:</label>
+             <select name="{{ form.rating.name }}" id="{{ form.rating.id_for_label }}" class="form-select" required>
+                <option value="">Chọn điểm số</option>
+                {% for value, text in form.rating.field.choices %}
+                  <option value="{{ value }}" {% if form.rating.value == value|stringformat:"s" %}selected{% endif %}>{{ text }} ★</option>
+                {% endfor %}
+            </select>
+             {% if form.rating.errors %} <div class="invalid-feedback d-block">{{ form.rating.errors }}</div> {% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.comment.id_for_label }}" class="form-label">{{ form.comment.label }}:</label>
+             <textarea name="{{ form.comment.name }}" id="{{ form.comment.id_for_label }}" class="form-control" rows="4" required>{{ form.comment.value|default_if_none:'' }}</textarea>
+             {% if form.comment.errors %} <div class="invalid-feedback d-block">{{ form.comment.errors }}</div> {% endif %}
+          </div>
+          <button type="submit" class="btn btn-submit-review">Gửi đánh giá</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="text-center mt-4 alert alert-info">
+        Vui lòng <a href="{% url 'login' %}" class="alert-link">đăng nhập</a> để viết đánh giá.
+      </p>
+    {% endif %}
+
+    <!-- Existing Reviews List -->
+    <div class="mt-5">
+      {% if reviews %}
+        <ul class="review-list">
+          {% for review in reviews %}
+            <li class="review-item">
+              <div class="review-header">
+                <span class="review-user"><i class="fas fa-user-circle me-2"></i>{{ review.user.username }}</span>
+                <span class="review-date">{{ review.created_at|date:"d/m/Y H:i" }}</span>
+              </div>
+              <div class="review-rating-sentiment mb-2">
+                 <span class="review-rating">
+                      {% for i in "12345" %}
+                        <i class="fa{% if review.rating >= i|add:0 %}s{% else %}r{% endif %} fa-star"></i>
+                      {% endfor %}
+                 </span>
+                <!-- NEW: Display Sentiment Badge -->
+                {% if review.sentiment == 'POSITIVE' %}
+                  <span class="badge bg-success review-sentiment">Tích cực <i class="fas fa-thumbs-up ms-1"></i></span>
+                {% elif review.sentiment == 'NEGATIVE' %}
+                  <span class="badge bg-danger review-sentiment">Tiêu cực <i class="fas fa-thumbs-down ms-1"></i></span>
+                {% elif review.sentiment == 'NEUTRAL' %}
+                  <span class="badge bg-secondary review-sentiment">Trung tính <i class="fas fa-meh ms-1"></i></span>
+                 {% else %}
+                  <!-- Có thể hiển thị trạng thái đang chờ hoặc không có -->
+                   <span class="badge bg-light text-dark review-sentiment">Chưa phân tích</span>
+                {% endif %}
+               </div>
+              <p class="review-comment">{{ review.comment|linebreaksbr }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-center mt-4 alert alert-light">Chưa có đánh giá nào cho sản phẩm này.</p>
+      {% endif %}
+    </div>
+  </div> <!-- End Review Section -->
+
+</div> <!-- End Container -->
+
+<script>
+  // NEW: JavaScript for image modal
+  function openModal(imageUrl) {
+    const modal = document.getElementById("imageModal");
+    const modalImage = document.getElementById("modalImage");
+    if (modal && modalImage) {
+        modalImage.src = imageUrl;
+        modal.classList.add("show");
+        // Optional: disable body scroll when modal is open
+        // document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeModal() {
+    const modal = document.getElementById("imageModal");
+     if (modal) {
+        modal.classList.remove("show");
+        // Optional: enable body scroll when modal is closed
+        // document.body.style.overflow = 'auto';
+    }
+  }
+
+  // Close modal if clicking outside the image
+  document.getElementById("imageModal")?.addEventListener("click", function (e) {
+    if (e.target === this) { // Check if the click is on the modal background itself
+      closeModal();
+    }
+  });
+
+  // Close modal on escape key press
+   document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById("imageModal");
+            if (modal && modal.classList.contains('show')) {
+                 closeModal();
+            }
+        }
+    });
+
+   // --- Existing cart update script (if moved from base.html or included elsewhere) ---
+   // Ensure your cart.js logic runs after the DOM is loaded, e.g., inside a
+   // document.addEventListener('DOMContentLoaded', function() { ... });
+   // or make sure the script tag for cart.js is at the end of the body.
+
+</script>
+{% endblock main-content %}

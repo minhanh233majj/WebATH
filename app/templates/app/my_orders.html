@@ -1,0 +1,110 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Đơn hàng của bạn</h2>
+
+  {% if orders_data %}
+    {% for order_data in orders_data %}
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h4 class="card-title">Mã đơn hàng: #{{ order_data.don_hang.id }}</h4>
+
+          <p>
+            <strong>Ngày đặt hàng:</strong>
+            {{ order_data.don_hang.created_at|date:"d/m/Y H:i" }}
+          </p>
+
+          <p>
+            <strong>Trạng thái:</strong>
+            <span class="badge
+              {% if order_data.don_hang.payment_status == 'PENDING' %}bg-warning
+              {% elif order_data.don_hang.payment_status == 'PAID' %}bg-success
+              {% else %}bg-danger{% endif %}">
+              {{ order_data.don_hang.payment_status }}
+            </span>
+          </p>
+
+          <!-- Hiển thị giá trước và sau khi giảm -->
+          <p>
+            <strong>Giá trước khi giảm:</strong>
+            {{ order_data.don_hang.total_amount|add:order_data.don_hang.discount_applied|floatformat:0 }} VND
+          </p>
+          <p>
+            <strong>Giảm giá:</strong>
+            {{ order_data.don_hang.discount_applied|floatformat:0 }} VND
+          </p>
+          <p>
+            <strong>Tổng tiền sau giảm:</strong>
+            {{ order_data.don_hang.total_amount|floatformat:0 }} VND
+          </p>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p><strong>Họ và tên:</strong> {{ order_data.don_hang.full_name }}</p>
+              <p>
+                <strong>Địa chỉ:</strong>
+                {{ order_data.don_hang.address }}
+                {% if order_data.don_hang.city %}, {{ order_data.don_hang.city }}{% endif %}
+                {% if order_data.don_hang.state %}, {{ order_data.don_hang.state }}{% endif %}
+                , {{ order_data.don_hang.country }}
+              </p>
+              <p><strong>Số điện thoại:</strong> {{ order_data.don_hang.phone }}</p>
+              <p><strong>Email:</strong> {{ order_data.don_hang.email }}</p>
+            </div>
+
+            <div class="col-md-6">
+              <p>
+                <strong>Phương thức thanh toán:</strong>
+                {{ order_data.don_hang.get_payment_method_display }}
+              </p>
+            </div>
+          </div>
+
+          {% if order_data.items %}
+            <h5>Danh sách sản phẩm</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Tổng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in order_data.items %}
+                    <tr>
+                      <td>
+                        {% if item.product.ImageURL %}
+                          <img src="{{ item.product.ImageURL }}" alt="{{ item.product.name }}" style="max-width: 50px; border-radius: 5px" />
+                        {% else %}
+                          <span>Không có hình ảnh</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ item.product.name }}</td>
+                      <td>{{ item.price|floatformat:0 }} VND</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.get_total|floatformat:0 }} VND</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">Không có sản phẩm nào trong đơn hàng này.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center">Bạn chưa có đơn hàng nào.</p>
+    <div class="text-center">
+      <a href="{% url 'home' %}" class="btn btn-primary">Tiếp tục mua sắm</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock main-content %}

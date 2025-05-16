@@ -1,0 +1,134 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content_checkout %}
+<div class="container my-5">
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} shadow-sm" role="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
+  {% endif %}
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Thông tin giao hàng</h5>
+          <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="name" class="form-label">Họ và tên</label>
+              <input type="text" class="form-control" id="name" name="name" required />
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required />
+            </div>
+            <div class="mb-3">
+              <label for="address" class="form-label">Địa chỉ</label>
+              <input type="text" class="form-control" id="address" name="address" required />
+            </div>
+            <div class="mb-3">
+              <label for="city" class="form-label">Thành phố</label>
+              <input type="text" class="form-control" id="city" name="city" required />
+            </div>
+            <div class="mb-3">
+              <label for="state" class="form-label">Tỉnh/Quận</label>
+              <input type="text" class="form-control" id="state" name="state" required />
+            </div>
+            <div class="mb-3">
+              <label for="mobile" class="form-label">Số điện thoại</label>
+              <input type="text" class="form-control" id="mobile" name="mobile" required />
+            </div>
+            <div class="mb-3">
+              <label for="country" class="form-label">Quốc gia</label>
+              <input type="text" class="form-control" id="country" name="country" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phương thức thanh toán</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payment_method" id="cod" value="COD" checked />
+                <label class="form-check-label" for="cod">Thanh toán khi nhận hàng (COD)</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payment_method" id="vnpay" value="VNPAY" />
+                <label class="form-check-label" for="vnpay">Thanh toán qua VNPay</label>
+              </div>
+            </div>
+            <!-- Thêm trường nhập mã voucher -->
+            <div class="mb-3">
+              <label for="voucher_code" class="form-label">Mã voucher</label>
+              <input type="text" class="form-control" id="voucher_code" name="voucher_code" placeholder="Nhập mã voucher (nếu có)" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Thanh toán</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Đơn hàng của bạn</h5>
+          {% if items %}
+          <ul class="list-group list-group-flush">
+            {% for item in items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <img src="{{ item.Product.ImageURL }}" alt="{{ item.Product.name }}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 8px;" />
+                <span>{{ item.Product.name }}</span>
+              </div>
+              <span>{{ item.quantity }} x {{ item.Product.price|floatformat:0 }} = {{ item.get_total|floatformat:0 }} VNĐ</span>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="d-flex justify-content-between mt-3">
+            <h5>Tổng cộng:</h5>
+            <h5>{{ order.get_cart_total|floatformat:0 }} VNĐ</h5>
+          </div>
+          {% else %}
+          <p class="text-muted mt-3">Giỏ hàng của bạn đang trống.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .card {
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  .form-control {
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    transition: border-color 0.3s ease;
+  }
+  .form-control:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.25);
+  }
+  .btn-primary {
+    border-radius: 20px;
+    padding: 12px;
+    background-color: #3182ce;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  .btn-primary:hover {
+    background-color: #2b6cb0;
+  }
+  .list-group-item {
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 768px) {
+    .col-md-6 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+</style>
+{% endblock content_checkout %}

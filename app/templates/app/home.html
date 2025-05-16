@@ -1,0 +1,396 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block banner_sider %}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<!-- Font Awesome để hiển thị icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+<style>
+  .carousel-caption {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    border-radius: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .carousel-caption h5, .carousel-caption p {
+    color: #fff;
+  }
+  /* Popup chung */
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: none;
+    z-index: 1000;
+  }
+  /* Popup quảng cáo - trong suốt */
+  #ad-popup {
+    background: transparent;
+    box-shadow: none;
+  }
+  #ad-popup img {
+    max-width: 100%;
+    height: auto;
+  }
+  /* Popup sản phẩm - giữ nguyên gradient xanh */
+  #product-popup {
+    background: linear-gradient(135deg, #00f, #0ff);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    border: 2px solid #0ff;
+    width: 500px;
+    height: 600px;
+    padding: 30px;
+    border-radius: 15px;
+  }
+  #product-popup img.thumbnail {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+  #product-popup h6 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin-bottom: 10px;
+  }
+  #product-popup h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #ff0;
+    margin-bottom: 10px;
+  }
+  #product-popup .title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+  }
+  #product-popup .btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    margin: 0 10px;
+  }
+  #product-popup .btn-add-cart {
+    background: #28a745;
+    color: #fff;
+  }
+  #product-popup .btn-add-cart:hover {
+    background: #218838;
+  }
+  #product-popup .btn-view-info {
+    background: #007bff;
+    color: #fff;
+  }
+  #product-popup .btn-view-info:hover {
+    background: #0056b3;
+  }
+  .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+  }
+</style>
+
+<div id="carouselExampleDark" class="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel" data-bs-interval="2000">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="3" aria-label="Slide 4"></button>
+  </div>
+  <div class="carousel-inner">
+    <div class="carousel-item active" data-bs-interval="2000">
+      <img src="{% static 'app/images/banner/1.png' %}" class="d-block w-100" alt="Sữa con heo" height="450"/>
+      <div class="carousel-caption d-md-block">
+        <h5>Công nghệ trong tầm tay</h5>
+        <p>Đỉnh cao hiệu suất!</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-bs-interval="2000">
+      <img src="{% static 'app/images/banner/2.png' %}" class="d-block w-100" alt="Sữa con mèo" height="450"/>
+      <div class="carousel-caption d-md-block">
+        <h5>Máy mạnh - Giá chuẩn</h5>
+        <p>Dịch vụ tận tâm!</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-bs-interval="2000">
+      <img src="{% static 'app/images/banner/3.png' %}" class="d-block w-100" alt="Sữa con bò" height="450"/>
+      <div class="carousel-caption d-md-block">
+        <h5>Linh kiện chất</h5>
+        <p>Trải nghiệm thật!</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-bs-interval="2000">
+      <img src="{% static 'app/images/banner/4.png' %}" class="d-block w-100" alt="Sữa con dê" height="450"/>
+      <div class="carousel-caption d-md-block">
+        <h5>Nâng tầm trải nghiệm</h5>
+        <p>Chạm đến tương lai!</p>
+      </div>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="ad-popup">
+  <button class="close-btn" onclick="closeAdPopup()">X</button>
+  <img src="https://lh3.googleusercontent.com/fx9hKcZQ-09qLLKZDvgTN-HYL1vfXi7aBm6wgwu5MqXQyYeI9rmvxHnPiAyP75j3UsV57W0-n5OFdZsiVsjZH49RN3AxLRY=rw" alt="Quảng cáo đặc biệt"/>
+</div>
+
+<div class="overlay" id="product-overlay"></div>
+{% if most_searched_product %}
+<div class="popup" id="product-popup">
+  <button class="close-btn" onclick="closeProductPopup()">X</button>
+  <h6 class="title">SẢN PHẨM ĐƯỢC TÌM KIẾM NHIỀU NHẤT</h6>
+  {% if most_searched_product.image %}
+    <img class="thumbnail" src="{{ most_searched_product.image }}" alt="{{ most_searched_product.name }}"/>
+  {% else %}
+    <img class="thumbnail" src="{% static 'app/images/default.jpg' %}" alt="No image available"/>
+  {% endif %}
+  <h6>{{ most_searched_product.name }}</h6>
+  <h3>{{ most_searched_product.price }} VNĐ</h3>
+  <button data-product="{{ most_searched_product.id }}" data-action="add" class="btn btn-add-cart update-cart">Thêm</button>
+  <a class="btn btn-view-info" href="{% url 'product_detail' most_searched_product.slug %}">Xem</a>
+</div>
+{% endif %}
+
+<script>
+  setTimeout(() => {
+    document.getElementById("ad-popup").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
+  }, 3000);
+
+  function closeAdPopup() {
+    document.getElementById("ad-popup").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+    setTimeout(() => {
+      document.getElementById("product-popup").style.display = "block";
+      document.getElementById("product-overlay").style.display = "block";
+    }, 500);
+  }
+
+  function closeProductPopup() {
+    document.getElementById("product-popup").style.display = "none";
+    document.getElementById("product-overlay").style.display = "none";
+  }
+
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-add-cart')) {
+      e.preventDefault();
+      e.stopPropagation();
+      alert('Sản phẩm đã được thêm vào giỏ hàng!');
+    }
+  });
+</script>
+{% endblock banner_sider %}
+
+{% block main-content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+  body {
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .section-title-base {
+    font-size: 2rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #ff6f61, #ffba08);
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .section-title-running {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    animation: marquee 10s linear infinite;
+  }
+
+  .section-title-static {
+    text-align: center;
+    width: 100%;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .product-box {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1rem;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .product-box:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-box img.thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+  }
+
+  .product-box h6 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+    height: 2.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .product-box hr {
+    margin: 0.5rem 0;
+    border-color: #e9ecef;
+  }
+
+  .product-box .btn {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    border: none;
+  }
+
+  .product-box .btn-add-cart {
+    background: #28a745;
+    color: #fff;
+  }
+
+  .product-box .btn-add-cart:hover {
+    background: #218838;
+  }
+
+  .product-box .btn-view-info {
+    background: #007bff;
+    color: #fff;
+  }
+
+  .product-box .btn-view-info:hover {
+    background: #0056b3;
+  }
+
+  .product-box h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #007bff;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2 class="section-title-base section-title-running">Sản phẩm được nhiều khách hàng mua nhất</h2>
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 justify-content-center mb-5 g-3">
+    {% for product in recommended_products %}
+    <div class="col d-flex align-items-stretch">
+      <div class="product-box text-center">
+        {% if product.image %}
+          <img class="thumbnail" src="{{ product.image.url }}" alt="{{ product.name }}"/>
+        {% else %}
+          <img class="thumbnail" src="{% static 'app/images/default.jpg' %}" alt="No image available"/>
+        {% endif %}
+        <div class="box-element product">
+          <h6><strong>{{ product.name }}</strong></h6>
+          <hr>
+          <button data-product="{{ product.id }}" data-action="add" class="btn btn-add-cart w-100 mb-2 update-cart">
+            Thêm vào giỏ hàng
+          </button>
+          <a class="btn btn-view-info w-100 mb-2" href="{% url 'product_detail' product.slug %}">Xem thông tin sản phẩm</a>
+          <h3><strong>{{ product.price }} VNĐ</strong></h3>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title-base section-title-static">Tất cả sản phẩm</h2>
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 justify-content-center g-3">
+    {% for product in products %}
+    <div class="col d-flex align-items-stretch">
+      <div class="product-box text-center">
+        {% if product.image %}
+          <img class="thumbnail" src="{{ product.image.url }}" alt="{{ product.name }}"/>
+        {% else %}
+          <img class="thumbnail" src="{% static 'app/images/default.jpg' %}" alt="No image available"/>
+        {% endif %}
+        <div class="box-element product">
+          <h6><strong>{{ product.name }}</strong></h6>
+          <hr>
+          <button data-product="{{ product.id }}" data-action="add" class="btn btn-add-cart w-100 mb-2 update-cart">
+            Thêm vào giỏ hàng
+          </button>
+          <a class="btn btn-view-info w-100 mb-2" href="{% url 'product_detail' product.slug %}">Xem thông tin sản phẩm</a>
+          <h3><strong>{{ product.price }} VNĐ</strong></h3>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<df-messenger
+  intent="WELCOME"
+  chat-title="Tưvấn24/7"
+  agent-id="f948f686-b573-45cd-ad13-7b3da8cc52c6"
+  language-code="vi"
+></df-messenger>
+
+<br><br><br>
+{% endblock main-content %}

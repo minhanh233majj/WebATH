@@ -1,0 +1,266 @@
+{% extends 'admin/base_site.html' %}
+{% block extrastyle %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  .table-cell {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .scrollable-section::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scrollable-section::-webkit-scrollbar-thumb {
+    background-color: #a0aec0;
+    border-radius: 4px;
+  }
+  .scrollable-section::-webkit-scrollbar-track {
+    background: #edf2f7;
+  }
+  .stat-card {
+    min-width: 0;
+  }
+  .stat-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold text-center mb-6">Trang Thống Kê Bán Hàng</h1>
+
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Thông Báo Quan Trọng</h2>
+    <div id="alerts" class="max-h-36 overflow-y-auto scrollable-section bg-gray-50 p-3 rounded-lg shadow border border-gray-200">
+      {% for alert in alerts %}
+      <div class="p-2 mb-2 last:mb-0 rounded-md {% if 'Tồn kho thấp' in alert.alert %}bg-red-100 border-l-4 border-red-500{% else %}bg-yellow-100 border-l-4 border-yellow-500{% endif %}">
+        <p class="text-sm font-medium truncate">
+          {% if 'Tồn kho thấp' in alert.alert %}
+            <span class="text-red-700">Cảnh Báo Tồn Kho Thấp</span>
+          {% else %}
+            <span class="text-yellow-700">Cảnh Báo Nhu Cầu Cao</span>
+          {% endif %}
+          : {{ alert.alert }} (ID: {{ alert.product_id }}, Tên: {{ alert.product_name }})
+        </p>
+        <p class="text-xs text-gray-600">Nhập kho: {{ alert.restock_quantity }} đơn vị</p>
+      </div>
+      {% empty %}
+      <div class="p-2 rounded-md bg-green-100 border-l-4 border-green-500">
+        <p class="text-sm font-medium text-green-700">Không có thông báo mới</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-1 space-y-4">
+      <div class="bg-white p-5 rounded-lg shadow">
+        <h3 class="text-lg font-semibold mb-4">Tổng Quan Thống Kê</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gray-50 p-4 rounded-md text-center stat-card">
+            <h4 class="text-sm font-medium">Tổng Doanh Thu</h4>
+            <p id="revenue" class="text-lg font-bold text-green-600 stat-value">
+              {% if total_revenue %}
+                {{ total_revenue }} VND
+              {% else %}
+                0 VND
+              {% endif %}
+            </p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-md text-center stat-card">
+            <h4 class="text-sm font-medium">Tổng Đơn Hàng</h4>
+            <p id="orderCount" class="text-base text-blue-600 stat-value">
+              {% if order_count %}
+                {{ order_count }}
+              {% else %}
+                0
+              {% endif %}
+            </p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-md text-center stat-card">
+            <h4 class="text-sm font-medium">Sản Phẩm Đã Bán</h4>
+            <p id="productCount" class="text-base text-purple-600 stat-value">
+              {% if product_count %}
+                {{ product_count }}
+              {% else %}
+                0
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold mb-3">Sản Phẩm Bán Chạy</h3>
+        <ul id="topProducts" class="max-h-48 overflow-y-auto scrollable-section">
+          {% for product in top_products %}
+          <li class="flex justify-between py-2 border-b last:border-b-0">
+            <span class="text-sm truncate">{{ product.name }}</span>
+            <span class="text-sm font-semibold">{{ product.sold }} sản phẩm</span>
+          </li>
+          {% empty %}
+          <li class="text-gray-500 text-sm">Chưa có dữ liệu</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold mb-3">Dự Báo Tồn Kho</h3>
+        <div class="overflow-x-auto">
+          <div class="max-h-48 overflow-y-auto scrollable-section">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="bg-gray-100 sticky top-0">
+                  <th class="p-2 table-cell">Tên Sản Phẩm</th>
+                  <th class="p-2 table-cell">Sản Phẩm ID</th>
+                  <th class="p-2 table-cell">Nhu Cầu Dự Đoán</th>
+                  <th class="p-2 table-cell">Tồn Kho Hiện Tại</th>
+                  <th class="p-2 table-cell">Khuyến Nghị Nhập Kho</th>
+                </tr>
+              </thead>
+              <tbody id="forecasts">
+                {% for forecast in forecasts %}
+                <tr class="border-b">
+                  <td class="p-2 table-cell">{{ forecast.product_name|default:"Unknown Product" }}</td>
+                  <td class="p-2 table-cell">{{ forecast.product_id }}</td>
+                  <td class="p-2 table-cell">{{ forecast.predicted_demand }}</td>
+                  <td class="p-2 table-cell">{{ forecast.current_stock }}</td>
+                  <td class="p-2 table-cell">{{ forecast.restock_quantity }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="p-2 text-gray-500">Chưa có dữ liệu dự báo</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold mb-3">Thống Kê Doanh Thu và Đơn Hàng</h3>
+        <div class="relative h-64">
+          <canvas id="myChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex justify-center">
+    <label for="timeFilter" class="text-sm font-semibold mr-3 self-center">Chọn thời gian:</label>
+    <select id="timeFilter" onchange="updateDashboard()" class="p-2 border rounded text-sm">
+      <option value="">-- Chọn thời gian --</option>
+      <option value="1">1 ngày</option>
+      <option value="2">2 ngày</option>
+      <option value="7">7 ngày</option>
+      <option value="30">1 tháng</option>
+    </select>
+  </div>
+</div>
+
+<script>
+  const ctx = document.getElementById('myChart').getContext('2d');
+  let myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Doanh Thu', 'Đơn Hàng', 'Sản Phẩm'],
+      datasets: [{
+        label: 'Thống kê',
+        data: [{{ total_revenue|default:0 }}, {{ order_count|default:0 }}, {{ product_count|default:0 }}],
+        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString('vi-VN') + (this.label === 'Doanh Thu' ? ' VND' : '');
+            }
+          }
+        }
+      }
+    }
+  });
+
+  function updateDashboard() {
+    const days = document.getElementById('timeFilter').value;
+    Promise.all([
+      fetch(`/admin/dashboard-data/?days=${days}`),
+      fetch(`/admin/inventory-forecast-data/?days=${days}`)
+    ])
+      .then(([dashboardResponse, forecastResponse]) => {
+        if (!dashboardResponse.ok) {
+          throw new Error(`Dashboard data fetch failed: ${dashboardResponse.status}`);
+        }
+        if (!forecastResponse.ok) {
+          throw new Error(`Forecast data fetch failed: ${forecastResponse.status}`);
+        }
+        return Promise.all([dashboardResponse.json(), forecastResponse.json()]);
+      })
+      .then(([dashboardData, forecastData]) => {
+        console.log('Dashboard Data:', dashboardData);
+        console.log('Forecast Data:', forecastData);
+
+        myChart.data.datasets[0].data = [
+          dashboardData.total_revenue || 0,
+          dashboardData.order_count || 0,
+          dashboardData.product_count || 0
+        ];
+        myChart.update();
+
+        document.getElementById('revenue').innerText = (dashboardData.total_revenue || 0).toLocaleString('vi-VN') + ' VND';
+        document.getElementById('orderCount').innerText = dashboardData.order_count || 0;
+        document.getElementById('productCount').innerText = dashboardData.product_count || 0;
+
+        const topProductsList = document.getElementById('topProducts');
+        topProductsList.innerHTML = dashboardData.top_products.map(product => `
+          <li class="flex justify-between py-2 border-b last:border-b-0">
+            <span class="text-sm truncate">${product.name}</span>
+            <span class="text-sm font-semibold">${product.sold} sản phẩm</span>
+          </li>
+        `).join('') || '<li class="text-gray-500 text-sm">Chưa có dữ liệu</li>';
+
+        const forecastsTable = document.getElementById('forecasts');
+        forecastsTable.innerHTML = forecastData.forecasts.map(forecast => `
+          <tr class="border-b">
+            <td class="p-2 table-cell">${forecast.product_name || 'Unknown Product'}</td>
+            <td class="p-2 table-cell">${forecast.product_id}</td>
+            <td class="p-2 table-cell">${forecast.predicted_demand}</td>
+            <td class="p-2 table-cell">${forecast.current_stock}</td>
+            <td class="p-2 table-cell">${forecast.restock_quantity}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="5" class="p-2 text-gray-500">Chưa có dữ liệu dự báo</td></tr>';
+
+        const alertsSection = document.getElementById('alerts');
+        alertsSection.innerHTML = forecastData.alerts.map(alert => `
+          <div class="p-2 mb-2 last:mb-0 rounded-md ${alert.alert.includes('Tồn kho thấp') ? 'bg-red-100 border-l-4 border-red-500' : 'bg-yellow-100 border-l-4 border-yellow-500'}">
+            <p class="text-sm font-medium truncate">
+              ${alert.alert.includes('Tồn kho thấp') ? '<span class="text-red-700">Cảnh Báo Tồn Kho Thấp</span>' : '<span class="text-yellow-700">Cảnh Báo Nhu Cầu Cao</span>'}
+              : ${alert.alert} (ID: ${alert.product_id}, Tên: ${alert.product_name})
+            </p>
+            <p class="text-xs text-gray-600">Nhập kho: ${alert.restock_quantity} đơn vị</p>
+          </div>
+        `).join('') || `
+          <div class="p-2 rounded-md bg-green-100 border-l-4 border-green-500">
+            <p class="text-sm font-medium text-green-700">Không có thông báo mới</p>
+          </div>`;
+      })
+      .catch(error => {
+        console.error('Error updating dashboard:', error);
+        alert('Không thể tải dữ liệu thống kê hoặc dự báo. Kiểm tra console để biết thêm chi tiết.');
+      });
+  }
+</script>
+{% endblock %}

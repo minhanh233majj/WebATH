@@ -1,0 +1,38 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Danh sách ưu đãi</h2>
+
+  {% if vouchers %}
+    <div class="row">
+      {% for voucher in vouchers %}
+        <div class="col-md-4 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">Mã: {{ voucher.code }}</h5>
+              <p class="card-text">
+                <strong>Giảm giá:</strong> {{ voucher.discount_amount|floatformat:0 }} VND<br>
+                <strong>Tối thiểu:</strong> {{ voucher.min_order_amount|floatformat:0 }} VND<br>
+                <strong>Hiệu lực từ:</strong> {{ voucher.valid_from|date:"d/m/Y" }} đến {{ voucher.valid_until|date:"d/m/Y" }}
+              </p>
+              {% if voucher.id in saved_voucher_ids %}
+                <button class="btn btn-success" disabled>Đã lưu</button>
+              {% else %}
+                <form method="post" action="{% url 'voucher_list' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="voucher_id" value="{{ voucher.id }}">
+                  <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">Không có ưu đãi nào hiện tại.</p>
+  {% endif %}
+</div>
+{% endblock main-content %}

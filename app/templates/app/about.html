@@ -1,0 +1,119 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% block register %}
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Giới thiệu Công ty ATH</title>
+    <meta name="description" content="Công ty ATH - Giải pháp công nghệ thông tin hàng đầu" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f8fafc;
+        color: #2d3748;
+        line-height: 1.8;
+      }
+      main {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin: 40px auto;
+        max-width: 900px;
+        transition: transform 0.3s ease;
+      }
+      main:hover {
+        transform: translateY(-5px);
+      }
+      h2 {
+        color: #1a202c;
+        font-size: 2rem;
+        border-bottom: 3px solid #3182ce;
+        padding-bottom: 12px;
+        margin-bottom: 24px;
+      }
+      p {
+        font-size: 1.1rem;
+        margin-bottom: 16px;
+      }
+      ul {
+        margin-left: 24px;
+        font-size: 1.1rem;
+      }
+      ul li {
+        margin-bottom: 12px;
+      }
+      .contact-info {
+        background-color: #e6f3ff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 24px;
+        transition: background-color 0.3s ease;
+      }
+      .contact-info:hover {
+        background-color: #d1e7ff;
+      }
+      .contact-info i {
+        margin-right: 12px;
+        color: #3182ce;
+        font-size: 1.2rem;
+      }
+      @media (max-width: 768px) {
+        main {
+          padding: 20px;
+          margin: 20px;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        p, ul {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container mx-auto px-4 py-8">
+      <section class="mb-8">
+        <h2>Giới thiệu về Công ty ATH</h2>
+        <p>
+          Công ty ATH là một trong những công ty hàng đầu trong lĩnh vực công nghệ thông tin và dịch vụ phần mềm. Chúng tôi cam kết mang đến cho khách hàng những giải pháp công nghệ tiên tiến và hiệu quả nhất.
+        </p>
+        <p>
+          Với đội ngũ nhân viên chuyên nghiệp và giàu kinh nghiệm, chúng tôi luôn nỗ lực không ngừng để đáp ứng mọi nhu cầu của khách hàng và mang lại giá trị bền vững cho doanh nghiệp.
+        </p>
+      </section>
+
+      <section class="mb-8">
+        <h2>Sứ mệnh và Tầm nhìn</h2>
+        <p>
+          Sứ mệnh của chúng tôi là cung cấp các giải pháp công nghệ đột phá, giúp khách hàng nâng cao hiệu quả kinh doanh và tạo ra sự khác biệt trên thị trường.
+        </p>
+        <p>
+          Tầm nhìn của chúng tôi là trở thành đối tác tin cậy và hàng đầu trong lĩnh vực công nghệ thông tin, đồng hành cùng sự phát triển bền vững của khách hàng.
+        </p>
+      </section>
+
+      <section class="mb-8">
+        <h2>Giá trị cốt lõi</h2>
+        <ul class="list-disc list-inside">
+          <li>Chất lượng: Luôn đặt chất lượng lên hàng đầu trong mọi sản phẩm và dịch vụ.</li>
+          <li>Đổi mới: Không ngừng sáng tạo và đổi mới để mang lại những giải pháp tốt nhất.</li>
+          <li>Khách hàng: Luôn lắng nghe và đáp ứng mọi nhu cầu của khách hàng.</li>
+          <li>Trách nhiệm: Cam kết trách nhiệm với cộng đồng và môi trường.</li>
+        </ul>
+      </section>
+
+      <section class="contact-info">
+        <h2>Liên hệ</h2>
+        <p><i class="fas fa-phone"></i>Gọi mua hàng: 09999999</p>
+        <p><i class="fas fa-envelope"></i>Email: contact@ath.com</p>
+      </section>
+    </main>
+  </body>
+</html>
+{% endblock register %}

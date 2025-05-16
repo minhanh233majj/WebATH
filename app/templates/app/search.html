@@ -1,0 +1,30 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block register %}
+<h5> Tìm kiếm sản phẩm</h5>
+
+<!-- Form tìm kiếm bằng từ khóa -->
+<div class="text-center mb-4">
+    <form method="POST" action="{% url 'search' %}">
+        {% csrf_token %}
+        <input type="text" name="searched" placeholder="Nhập tên sản phẩm..." class="form-control mb-2">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+    </form>
+</div>
+
+
+<!-- Upload Icon -->
+<div class="text-center mb-4">
+  <form method="POST" enctype="multipart/form-data" action="{% url 'search' %}">
+      {% csrf_token %}
+      <input type="file" name="query_image" id="fileInput" accept="image/*" style="display: none;" onchange="this.form.submit()">
+
+      <label for="fileInput" style="cursor: pointer;">
+          <i class="fa-solid fa-camera fa-2x text-primary"></i><br>
+          <small>Click để tải ảnh tìm kiếm</small>
+      </label>
+  </form>
+</div>
+
+{% endblock %}

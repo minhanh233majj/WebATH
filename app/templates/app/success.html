@@ -1,0 +1,126 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block main-content %}
+<div class="container mt-4">
+  <!-- Toast thông báo -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div
+      id="successToast"
+      class="toast align-items-center text-white bg-success border-0"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          Đặt hàng thành công! Cảm ơn bạn đã mua sắm.
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nội dung chính -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title text-center mb-4">Đặt hàng thành công!</h2>
+      <p class="text-center">
+        Cảm ơn bạn đã đặt hàng. Đơn hàng của bạn sẽ được giao đến địa chỉ:
+      </p>
+
+      <!-- Thông tin giao hàng -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <p><strong>Họ và tên:</strong> {{ order.full_name }}</p>
+          <p>
+            <strong>Địa chỉ:</strong>
+            {{ order.address }} {% if order.city %}, {{ order.city }}{% endif %}
+            {% if order.state %}, {{ order.state }}{% endif %} , {{ order.country }}
+          </p>
+          <p><strong>Số điện thoại:</strong> {{ order.phone }}</p>
+          <p><strong>Email:</strong> {{ order.email }}</p>
+        </div>
+        <div class="col-md-6">
+          <p>
+            <strong>Phương thức thanh toán:</strong> {{ order.payment_method }}
+          </p>
+          <p><strong>Trạng thái:</strong> {{ order.payment_status }}</p>
+          {% if applied_voucher %}
+            <p><strong>Mã voucher:</strong> {{ applied_voucher.code }}</p>
+            <p><strong>Giảm giá:</strong> {{ discount|floatformat:0 }} VND</p>
+            <p><strong>Tổng tiền ban đầu:</strong> {{ order.total_amount|add:discount|floatformat:0 }} VND</p>
+            <p><strong>Tổng tiền sau giảm:</strong> {{ order.total_amount|floatformat:0 }} VND</p>
+          {% else %}
+            <p><strong>Tổng tiền:</strong> {{ order.total_amount|floatformat:0 }} VND</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Danh sách sản phẩm -->
+      {% if items %}
+      <h4 class="mb-3">Danh sách sản phẩm</h4>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Hình ảnh</th>
+              <th>Tên sản phẩm</th>
+              <th>Giá</th>
+              <th>Số lượng</th>
+              <th>Tổng</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>
+                {% if item.Product.ImageURL %}
+                <img
+                  src="{{ item.Product.ImageURL }}"
+                  alt="{{ item.Product.name }}"
+                  style="max-width: 50px; border-radius: 5px"
+                />
+                {% else %}
+                <span>Không có hình ảnh</span>
+                {% endif %}
+              </td>
+              <td>{{ item.Product.name }}</td>
+              <td>{{ item.Product.price|floatformat:0 }} VND</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.get_total|floatformat:0 }} VND</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted">Không có sản phẩm nào trong đơn hàng.</p>
+      {% endif %}
+
+      <!-- Nút quay lại trang chủ và xem đơn hàng -->
+      <div class="text-center mt-4">
+        <a href="{% url 'home' %}" class="btn btn-primary"
+          >Quay lại trang chủ</a
+        >
+        <a href="{% url 'my_orders' %}" class="btn btn-secondary"
+          >Xem đơn hàng của bạn</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript để hiển thị toast -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var toastEl = document.getElementById("successToast");
+    var toast = new bootstrap.Toast(toastEl);
+    toast.show();
+  });
+</script>
+{% endblock main-content %}

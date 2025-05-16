@@ -1,0 +1,204 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block cart_content %}
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <a class="btn btn-outline-dark mb-4" href="{% url 'home' %}"><i class="fas fa-arrow-left"></i> Tiếp tục mua sắm</a>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th><h5>Số lượng: <strong>{{ order.get_cart_items }}</strong></h5></th>
+                <th><h5>Tổng tiền: <strong>{{ order.get_cart_total|floatformat:0 }} VNĐ</strong></h5></th>
+                <th>
+                  <a class="btn btn-success float-end" href="{% url 'checkout' %}">Thanh toán</a>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+      <div class="card shadow-sm mt-4">
+        <div class="card-body">
+          <div class="cart-row d-flex font-weight-bold border-bottom pb-3 mb-3">
+            <div style="flex: 2; text-align: center;">Hình ảnh</div>
+            <div style="flex: 2; text-align: center;">Sản phẩm</div>
+            <div style="flex: 1; text-align: center;">Giá</div>
+            <div style="flex: 1; text-align: center;">Số lượng</div>
+            <div style="flex: 1; text-align: center;">Tổng</div>
+          </div>
+          {% for item in items %}
+          <div class="cart-row d-flex align-items-center py-3 border-bottom">
+            <div style="flex: 2; text-align: center;">
+              <img class="row-image" src="{{ item.Product.ImageURL }}" style="width: 80px; height: auto; border-radius: 8px;">
+            </div>
+            <div style="flex: 2; text-align: center;">
+              <p>{{ item.Product.name }}</p>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <p>{{ item.Product.price|floatformat:0 }} VNĐ</p>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <p class="quantity mb-2">{{ item.quantity }}</p>
+              <div class="quantity d-flex justify-content-center">
+                <img data-product="{{item.Product.id}}" data-action="add" class="chg-quantity update-cart" src="{% static 'app/images/arrow-up.png' %}" style="width: 20px; cursor: pointer; margin-right: 10px;">
+                <img data-product="{{item.Product.id}}" data-action="remove" class="chg-quantity update-cart" src="{% static 'app/images/arrow-down.png' %}" style="width: 20px; cursor: pointer;">
+              </div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <p>{{ item.get_total|floatformat:0 }} VNĐ</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Phần mới: Nút "Xem đơn hàng của bạn" và icon hiển thị sản phẩm đã mua -->
+      <div class="d-flex justify-content-between align-items-center mt-4">
+
+        <div>
+          <button id="show-purchased-products" class="btn btn-outline-info" title="Hiển thị sản phẩm đã mua">
+            <i class="fas fa-box-open"></i> Sản phẩm đã mua
+          </button>
+        </div>
+      </div>
+
+      <!-- Phần mới: Danh sách sản phẩm đã mua -->
+      <div id="purchased-products-section" class="card shadow-sm mt-4" style="display: none;">
+        <div class="card-body">
+          <h5>Danh sách sản phẩm đã mua</h5>
+          <div id="purchased-products-list">
+            {% if purchased_products %}
+              {% for product in purchased_products %}
+              <div class="purchased-product-item border-bottom py-2 d-flex justify-content-between align-items-center">
+                <div>
+                  <img src="{{ product.image_url }}" style="width: 50px; height: auto; border-radius: 4px; margin-right: 10px;">
+                  <span>{{ product.name }}</span> - <span>{{ product.created_at|date:"d/m/Y" }}</span> - <span>{{ product.price|floatformat:0 }} VNĐ</span>
+                </div>
+                <button data-product="{{ product.id }}" data-quantity="1" class="btn btn-warning btn-sm reset-product">Đặt lại</button>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted">Bạn chưa mua sản phẩm nào.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Thêm Font Awesome để sử dụng icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+  .card {
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  .btn-success, .btn-primary, .btn-outline-info, .btn-warning {
+    border-radius: 20px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+  }
+  .btn-success:hover {
+    background-color: #2b6cb0;
+  }
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  .btn-outline-info:hover {
+    background-color: #17a2b8;
+    color: white;
+  }
+  .btn-warning:hover {
+    background-color: #e0a800;
+  }
+  .table th, .table td {
+    vertical-align: middle;
+  }
+  .purchased-product-item {
+    transition: background-color 0.3s ease;
+  }
+  .purchased-product-item:hover {
+    background-color: #f8f9fa;
+  }
+  @media (max-width: 768px) {
+    .cart-row {
+      flex-direction: column;
+      text-align: center;
+    }
+    .cart-row > div {
+      margin-bottom: 10px;
+    }
+    .purchased-product-item {
+      flex-direction: column;
+      text-align: center;
+    }
+    .purchased-product-item button {
+      margin-top: 5px;
+    }
+  }
+</style>
+
+<script>
+  // JavaScript để toggle hiển thị danh sách sản phẩm đã mua
+  document.getElementById('show-purchased-products').addEventListener('click', function() {
+    const section = document.getElementById('purchased-products-section');
+    if (section.style.display === 'none') {
+      section.style.display = 'block';
+      this.innerHTML = '<i class="fas fa-box-open"></i> Ẩn sản phẩm đã mua';
+    } else {
+      section.style.display = 'none';
+      this.innerHTML = '<i class="fas fa-box-open"></i> Sản phẩm đã mua';
+    }
+  });
+
+  // JavaScript để thêm sản phẩm vào giỏ hàng khi click "Đặt lại"
+  document.querySelectorAll('.reset-product').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.getAttribute('data-product');
+      const quantity = this.getAttribute('data-quantity');
+      const data = {
+        productId: productId,
+        action: 'add'
+      };
+
+      fetch("{% url 'update_item' %}", {  // Use Django's URL template tag for dynamic URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (response.status === 401) {  // Handle unauthenticated user
+          alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
+          window.location.href = "{% url 'login' %}";
+          return;
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.message) {
+          alert('Sản phẩm đã được thêm vào giỏ hàng!');
+          location.reload();  // Reload page to update cart
+        } else if (data && data.error) {
+          alert('Có lỗi khi thêm sản phẩm vào giỏ hàng: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng.');
+      });
+    });
+  });
+</script>
+{% endblock cart_content %}
