@@ -17,13 +17,16 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-46es)*@d)c5!=%a5c21c$gvdpt69cj_7tuhe)l=ut+nog%8k6y')
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-46es)*@d)c5!=%a5c21c$gvdpt69cj_7tuhe)l=ut+nog%8k6y'
 
-# Sửa phần ALLOWED_HOSTS lấy từ biến môi trường, tách bằng dấu phẩy
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='websitebanghangdientu.onrender.com,localhost,127.0.0.1').split(',')
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -37,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app.apps.AppConfig',
     'django.contrib.humanize',
-
-
 ]
 
 MIDDLEWARE = [
@@ -49,7 +50,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
 ROOT_URLCONF = 'websitebanhangpython.urls'
@@ -72,22 +72,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'websitebanhangpython.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # ĐÚNG
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'shopbanghangdb',
-        'USER': 'shopadmin',
-        'PASSWORD': 'lhN98G5MTm0TUwpQUIzA2I6FbflGAmhU',  # Thêm mật khẩu nếu cần
-        'HOST': 'dpg-d0ja6m6mcj7s73fpj4fg-a.singapore-postgres.render.com',
+        'USER': 'postgres',
+        'PASSWORD': '123456',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -107,33 +104,31 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+LANGUAGE_CODE = 'vi'  # Set to Vietnamese for better localization
+TIME_ZONE = 'Asia/Ho_Chi_Minh'  # Set to your local timezone (+07:00)
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'app', 'static')
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Added STATIC_ROOT
+
+MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/images/query')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,'app','static')
-]
-MEDIA_URL ='/images/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'app/static/images/query')
+
 # --------- BẮT ĐẦU JAZZMIN CONFIG -------------
 JAZZMIN_SETTINGS = {
     "site_title": "Quản lý Website",
@@ -143,7 +138,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "© 2025 MinhAnh",
     "search_model": ["app.Product", "app.Category"],
     "topmenu_links": [
-        {"name": "Trang chủ",  "url": "/", "new_window": True},
+        {"name": "Trang chủ", "url": "/", "new_window": True},
         {"model": "app.Product"},
         {"model": "auth.User"},
     ],
@@ -152,16 +147,14 @@ JAZZMIN_SETTINGS = {
     "hide_apps": [],
     "hide_models": [],
 }
-# settings.py
+
+# Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = '2124802010100@student.tdmu.edu.vn'  # Thay bằng Gmail của bạn
-EMAIL_HOST_PASSWORD = 'yewd djkt bidj gfoe'  # Mật khẩu ứng dụng của Gmail
+EMAIL_HOST_USER = '2124802010100@student.tdmu.edu.vn'
+EMAIL_HOST_PASSWORD = 'yewd djkt bidj gfoe'
 DEFAULT_FROM_EMAIL = 'MinhAnh Store <2124802010100@student.tdmu.edu.vn>'
 # --------- KẾT THÚC JAZZMIN CONFIG -------------
-# VNPay Configuration
-# VNPay Configuration
-from decouple import config
 

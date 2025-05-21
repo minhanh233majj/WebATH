@@ -32,6 +32,13 @@ from .inventory_forecast import forecast_demand_and_inventory, get_inventory_for
 # Import các model
 from .models import Category, Product, Order, OrderItem, DonHang, DonHangItem, Review, Voucher, SearchHistory
 from datetime import datetime
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.units import cm
+from django.http import FileResponse
 
 # Initialize MobileNet V2 model
 model = mobilenet_v2(weights="IMAGENET1K_V1")
@@ -837,17 +844,6 @@ def product_detail(request, slug):
         'average_rating': average_rating, # Truyền rating trung bình
     }
 
-    # ---- CÁCH TEST SENTIMENT ANALYSIS TRÊN GIAO DIỆN ----
-    # 1. Chạy server Django.
-    # 2. Vào trang chi tiết của một sản phẩm bất kỳ.
-    # 3. Đăng nhập nếu chưa đăng nhập.
-    # 4. Viết một đánh giá vào form (vd: "sản phẩm tốt", "hàng kém chất lượng", "bình thường") và chọn điểm số.
-    # 5. Nhấn nút "Gửi đánh giá".
-    # 6. Trang sẽ tải lại. Kéo xuống phần "Đánh giá từ khách hàng".
-    # 7. Xem đánh giá bạn vừa gửi. Bên cạnh thông tin đánh giá, bạn sẽ thấy một nhãn (badge) màu sắc cho biết kết quả Sentiment Analysis (Tích cực, Tiêu cực, Trung tính) dựa trên mô hình Naive Bayes đơn giản đã xử lý bình luận của bạn.
-    # 8. Thử nghiệm với các bình luận khác nhau để xem kết quả dự đoán thay đổi như thế nào.
-    # Lưu ý: Do mô hình đơn giản và dữ liệu huấn luyện giả lập, kết quả có thể không luôn chính xác.
-
     return render(request, 'app/product_detail.html', context)
 #------------------------------------------------#
 
@@ -881,9 +877,16 @@ def dashboard(request):
         don_hang__payment_status='PAID'
     ).values('ten_san_pham').annotate(sold=Sum('quantity')).order_by('-sold')[:3]
 
-    # Lấy dữ liệu dự báo
+    orders = DonHang.objects.filter(
+        created_at__gte=start_date,
+        payment_status='PAID'
+    ).order_by('-created_at')
+
     forecasts = get_inventory_forecasts(days=days)
-    alerts = [f for f in forecasts if f['alert']]  # Thu thập các thông báo
+    alerts = [f for f in forecasts if f['alert']]
+
+    # Debug print to confirm orders
+    print("Rendering dashboard with orders:", list(orders))
 
     return render(request, 'admin/custom_dashboard.html', {
         'product_count': product_count,
@@ -893,6 +896,7 @@ def dashboard(request):
         'forecasts': forecasts,
         'alerts': alerts,
         'days': days,
+        'orders': orders,
     })
 
 @staff_member_required
@@ -905,6 +909,7 @@ def dashboard_data(request):
                 'order_count': 0,
                 'total_revenue': 0,
                 'top_products': [],
+                'orders': [],  # Add orders to the response
             })
 
         days = int(days)
@@ -930,6 +935,11 @@ def dashboard_data(request):
             don_hang__payment_status='PAID'
         ).values('ten_san_pham').annotate(sold=Sum('quantity')).order_by('-sold')[:3]
 
+        orders = DonHang.objects.filter(
+            created_at__gte=start_date,
+            payment_status='PAID'
+        ).order_by('-created_at')
+
         top_products_list = []
         for item in top_products:
             if 'ten_san_pham' in item and 'sold' in item:
@@ -938,11 +948,22 @@ def dashboard_data(request):
                     'sold': item['sold']
                 })
 
+        # Serialize orders for JSON response
+        orders_list = [
+            {
+                'id': order.id,
+                'full_name': order.full_name,
+                'total_amount': float(order.total_amount),
+                'created_at': order.created_at.strftime('%d/%m/%Y %H:%M'),
+            } for order in orders
+        ]
+
         return JsonResponse({
             'product_count': product_count,
             'order_count': order_count,
             'total_revenue': float(total_revenue),
             'top_products': top_products_list,
+            'orders': orders_list,  # Include orders in the response
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -1089,3 +1110,64 @@ def user_info(request):
         'products_bought': products_bought,
     }
     return render(request, 'app/user_info.html', context)
+#------------------------------------------------#
+@staff_member_required
+def view_order(request, order_id):
+    order = get_object_or_404(DonHang, id=order_id, payment_status='PAID')
+    items = order.items.all()
+    return render(request, 'admin/view_order.html', {
+        'order': order,
+        'items': items,
+    })
+
+@staff_member_required
+def export_order_pdf(request, order_id):
+    # Lấy đơn hàng đã thanh toán
+    order = get_object_or_404(DonHang, id=order_id, payment_status='PAID')
+    items = order.items.all()
+
+    # Chuẩn bị buffer PDF
+    buffer = io.BytesIO()
+
+    # Đăng ký font DejaVuSans
+    font_path = os.path.join(settings.BASE_DIR, 'app', 'static', 'app', 'fonts', 'DejaVuSans.ttf')
+    pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
+
+    # Tạo canvas PDF
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    p.setFont("DejaVuSans", 10)
+
+    # Thông tin đơn hàng
+    p.drawString(2 * cm, height - 2 * cm, "HÓA ĐƠN BÁN HÀNG")
+    p.drawString(2 * cm, height - 3 * cm, f"Mã Đơn Hàng: {order.id}")
+    p.drawString(2 * cm, height - 3.5 * cm, f"Khách Hàng: {order.full_name}")
+    p.drawString(2 * cm, height - 4 * cm, f"Địa Chỉ: {order.address}, {order.city}, {order.state}, {order.country}")
+    p.drawString(2 * cm, height - 4.5 * cm, f"Số Điện Thoại: {order.phone}")
+    p.drawString(2 * cm, height - 5 * cm, f"Ngày Đặt: {order.created_at.strftime('%d/%m/%Y %H:%M')}")
+
+    # Danh sách sản phẩm
+    y = height - 7 * cm
+    p.drawString(2 * cm, y, "Danh Sách Sản Phẩm:")
+    y -= 0.5 * cm
+    for item in items:
+        item_text = f"- {item.ten_san_pham} (Số lượng: {item.quantity}, Giá: {item.price:,} VND)"
+        p.drawString(2 * cm, y, item_text)
+        y -= 0.5 * cm
+        if y < 2 * cm:
+            p.showPage()
+            p.setFont("DejaVuSans", 10)
+            y = height - 2 * cm
+
+    # Tổng kết
+    y -= 0.5 * cm
+    p.drawString(2 * cm, y, f"Giảm Giá: {order.discount_applied:,} VND")
+    y -= 0.5 * cm
+    p.drawString(2 * cm, y, f"Tổng Tiền: {order.total_amount:,} VND")
+
+    # Kết thúc
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename=f"hoa_don_{order.id}.pdf")

@@ -1,0 +1,45 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-6">Chi Tiết Đơn Hàng #{{ order.id }}</h1>
+  <div class="bg-white p-4 rounded-lg shadow">
+    <h3 class="text-lg font-semibold mb-3">Thông Tin Đơn Hàng</h3>
+    <p><strong>Khách Hàng:</strong> {{ order.full_name }}</p>
+    <p><strong>Địa Chỉ:</strong> {{ order.address }}, {{ order.city }}, {{ order.state }}, {{ order.country }}</p>
+    <p><strong>Số Điện Thoại:</strong> {{ order.phone }}</p>
+    <p><strong>Ngày Đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+    <p><strong>Tổng Tiền:</strong> {{ order.total_amount }} VND</p>
+    <p><strong>Giảm Giá:</strong> {{ order.discount_applied }} VND</p>
+  </div>
+
+  <div class="bg-white p-4 rounded-lg shadow mt-4">
+    <h3 class="text-lg font-semibold mb-3">Danh Sách Sản Phẩm</h3>
+    <table class="w-full text-left text-sm">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="p-2">Tên Sản Phẩm</th>
+          <th class="p-2">Số Lượng</th>
+          <th class="p-2">Giá</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr class="border-b">
+          <td class="p-2">{{ item.ten_san_pham }}</td>
+          <td class="p-2">{{ item.quantity }}</td>
+          <td class="p-2">{{ item.price }} VND</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="p-2 text-gray-500">Không có sản phẩm</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <a href="{% url 'dashboard' %}" class="text-blue-600 hover:underline">Quay lại Dashboard</a>
+  </div>
+</div>
+{% endblock %}

@@ -150,6 +150,49 @@
           <canvas id="myChart" class="w-full h-full"></canvas>
         </div>
       </div>
+
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold mb-3">Danh Sách Đơn Hàng</h3>
+        <div class="overflow-x-auto">
+          <div class="max-h-48 overflow-y-auto scrollable-section">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="bg-gray-100 sticky top-0">
+                  <th class="p-2 table-cell">Mã Đơn Hàng</th>
+                  <th class="p-2 table-cell">Khách Hàng</th>
+                  <th class="p-2 table-cell">Tổng Tiền</th>
+                  <th class="p-2 table-cell">Ngày Đặt</th>
+                  <th class="p-2 table-cell">Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="orders">
+                <!-- Debug information -->
+                {% if orders %}
+                  <tr><td colspan="5" class="p-2 text-gray-500">DEBUG: Orders found: {{ orders|length }}</td></tr>
+                {% else %}
+                  <tr><td colspan="5" class="p-2 text-gray-500">DEBUG: Orders is empty or not passed</td></tr>
+                {% endif %}
+                {% for order in orders %}
+                <tr class="border-b">
+                  <td class="p-2 table-cell">{{ order.id }}</td>
+                  <td class="p-2 table-cell">{{ order.full_name }}</td>
+                  <td class="p-2 table-cell">{{ order.total_amount }} VND</td>
+                  <td class="p-2 table-cell">{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                  <td class="p-2 table-cell">
+                    <a href="{% url 'view_order' order.id %}" class="text-blue-600 hover:underline mr-2">Xem</a>
+                    <a href="{% url 'export_order_pdf' order.id %}" class="text-green-600 hover:underline">Xuất PDF</a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="p-2 text-gray-500">Chưa có đơn hàng nào</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -213,6 +256,7 @@
         console.log('Dashboard Data:', dashboardData);
         console.log('Forecast Data:', forecastData);
 
+        // Update chart
         myChart.data.datasets[0].data = [
           dashboardData.total_revenue || 0,
           dashboardData.order_count || 0,
@@ -220,10 +264,12 @@
         ];
         myChart.update();
 
+        // Update stats
         document.getElementById('revenue').innerText = (dashboardData.total_revenue || 0).toLocaleString('vi-VN') + ' VND';
         document.getElementById('orderCount').innerText = dashboardData.order_count || 0;
         document.getElementById('productCount').innerText = dashboardData.product_count || 0;
 
+        // Update top products
         const topProductsList = document.getElementById('topProducts');
         topProductsList.innerHTML = dashboardData.top_products.map(product => `
           <li class="flex justify-between py-2 border-b last:border-b-0">
@@ -232,6 +278,7 @@
           </li>
         `).join('') || '<li class="text-gray-500 text-sm">Chưa có dữ liệu</li>';
 
+        // Update forecasts
         const forecastsTable = document.getElementById('forecasts');
         forecastsTable.innerHTML = forecastData.forecasts.map(forecast => `
           <tr class="border-b">
@@ -243,6 +290,7 @@
           </tr>
         `).join('') || '<tr><td colspan="5" class="p-2 text-gray-500">Chưa có dữ liệu dự báo</td></tr>';
 
+        // Update alerts
         const alertsSection = document.getElementById('alerts');
         alertsSection.innerHTML = forecastData.alerts.map(alert => `
           <div class="p-2 mb-2 last:mb-0 rounded-md ${alert.alert.includes('Tồn kho thấp') ? 'bg-red-100 border-l-4 border-red-500' : 'bg-yellow-100 border-l-4 border-yellow-500'}">
@@ -256,6 +304,24 @@
           <div class="p-2 rounded-md bg-green-100 border-l-4 border-green-500">
             <p class="text-sm font-medium text-green-700">Không có thông báo mới</p>
           </div>`;
+
+        // Update orders table dynamically
+        const ordersTable = document.getElementById('orders');
+        ordersTable.innerHTML = dashboardData.orders.map(order => `
+          <tr class="border-b">
+            <td class="p-2 table-cell">${order.id}</td>
+            <td class="p-2 table-cell">${order.full_name}</td>
+            <td class="p-2 table-cell">${order.total_amount.toLocaleString('vi-VN')} VND</td>
+            <td class="p-2 table-cell">${order.created_at}</td>
+            <td class="p-2 table-cell">
+              <a href="/admin/order/${order.id}/" class="text-blue-600 hover:underline mr-2">Xem</a>
+              <a href="/admin/order/${order.id}/export-pdf/" class="text-green-600 hover:underline">Xuất PDF</a>
+            </td>
+          </tr>
+        `).join('') || `
+          <tr>
+            <td colspan="5" class="p-2 text-gray-500">Chưa có đơn hàng nào</td>
+          </tr>`;
       })
       .catch(error => {
         console.error('Error updating dashboard:', error);

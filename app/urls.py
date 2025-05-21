@@ -29,6 +29,8 @@ urlpatterns = [
     path('admin/inventory-forecast/', views.inventory_forecast, name='inventory_forecast'),
     path('admin/inventory-forecast-data/', views.inventory_forecast_data, name='inventory_forecast_data'),
     path('user-info/', views.user_info, name='user_info'),
+    path('admin/order/<int:order_id>/', views.view_order, name='view_order'),
+    path('admin/order/<int:order_id>/export-pdf/', views.export_order_pdf, name='export_order_pdf'),
 
 
 ]
